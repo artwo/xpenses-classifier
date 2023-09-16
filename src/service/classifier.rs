@@ -2,18 +2,21 @@ use std::collections::HashSet;
 
 use radix_trie::Trie;
 
+pub type Category = String;
+type Pattern = String;
+
 pub struct Classifier {
-    pattern_category_map: Trie<String, String>,
-    fallback_categories: HashSet<String>,
+    pattern_category_map: Trie<Pattern, Category>,
+    fallback_categories: HashSet<Category>,
 }
 
 impl Classifier {
-    pub fn classify(&self, text: &str) -> Option<String> {
-        let mut result: Option<String> = None;
-        let words: Vec<&str> = text.split(&['*', ',']).collect();
+    pub fn classify(&self, text: &str) -> Option<Category> {
+        let mut result: Option<Category> = None;
+        let text_patterns: Vec<&str> = text.split(&['*', ',']).collect();
 
-        for w in words {
-            if let Some(cat) = self.pattern_category_map.get(w).cloned() {
+        for p in text_patterns {
+            if let Some(cat) = self.pattern_category_map.get(p).cloned() {
                 if result.is_none() && self.fallback_categories.contains(cat.as_str()) {
                     result = Some(cat);
                 } else {
@@ -29,6 +32,16 @@ impl Classifier {
         Classifier {
             pattern_category_map: Trie::new(),
             fallback_categories: HashSet::new(),
+        }
+    }
+
+    pub fn from(
+        pattern_category_map: Trie<Pattern, Category>,
+        fallback_categories: HashSet<Category>,
+    ) -> Classifier {
+        Classifier {
+            pattern_category_map,
+            fallback_categories,
         }
     }
 }
