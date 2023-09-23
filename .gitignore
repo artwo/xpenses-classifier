@@ -19,3 +19,6 @@ Cargo.lock
 
 # Testing csv files
 *.csv
+
+# Conf file
+conf.json

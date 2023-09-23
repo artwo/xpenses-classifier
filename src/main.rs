@@ -7,8 +7,10 @@ mod util;
 
 use service::file_classifier;
 
+const CONFIG_PATH: &str = "./config.json";
+
 fn main() {
-    let classifier = config::classifier_conf::process_categories_config();
+    let classifier = config::classifier_conf::process_categories_config(CONFIG_PATH);
     let mut file_classifier = file_classifier::FileClassifier::new();
     file_classifier
         .process_file("./Transactions_701_311319800_20230416_182556.csv")

@@ -1,0 +1,16 @@
+{
+  "fallbackCategories": [
+    "Paypal",
+    "Amazon"
+  ],
+  "categories": [
+    {
+      "name": "Supermarket",
+      "patterns": [
+        "Rewe",
+        "Edeka",
+        "Lidl"
+      ]
+    }
+  ]
+}

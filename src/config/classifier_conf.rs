@@ -2,6 +2,8 @@ use crate::service::classifier::Classifier;
 use radix_trie::Trie;
 use serde::Deserialize;
 use std::collections::HashSet;
+use std::error::Error;
+use std::fs;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -17,14 +19,9 @@ struct CategoryConfig {
     patterns: HashSet<String>,
 }
 
-pub fn process_categories_config() -> Classifier {
-    let json_config = r#"{
-        "fallbackCategories": ["Paypal", "Amazon"],
-        "categories": [
-            { "name": "Supermarket", "patterns": ["Rewe", "Edeka", "Lidl"] }
-        ]
-    }"#;
-    let cat_config: CategoryConfigFile = serde_json::from_str(json_config).unwrap();
+pub fn process_categories_config(file_path: &str) -> Result<Classifier, Box<dyn Error>> {
+    let json_config = fs::read_to_string(file_path)?;
+    let cat_config: CategoryConfigFile = serde_json::from_str(&json_config)?;
     let mut category_trie: Trie<String, String> = Trie::new();
     for c in cat_config.categories {
         for p in c.patterns {
@@ -32,5 +29,8 @@ pub fn process_categories_config() -> Classifier {
         }
     }
 
-    Classifier::from(category_trie, cat_config.fallback_categories)
+    Ok(Classifier::from(
+        category_trie,
+        cat_config.fallback_categories,
+    ))
 }
