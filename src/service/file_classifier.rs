@@ -1,16 +1,23 @@
+use crate::service::classified_expenses_service::ClassifiedExpensesService;
 use crate::service::classifier::Classifier;
 use crate::util::file_util::open_encoded_file;
 
-use std::collections::HashMap;
 use std::error::Error;
 use std::io::BufRead;
 
-pub struct FileClassifier {
-    classifier: Classifier,
-    pub classified_expenses: HashMap<String, Vec<String>>,
+pub struct FileProcessorConfig {
+    pub category_segment_idx: Box<[usize]>,
+    pub expense_segment_idx: Box<[usize]>,
 }
 
-impl FileClassifier {
+pub struct FileProcessor<'a> {
+    pub classifier: &'a Classifier,
+    pub expenses_service: &'a mut ClassifiedExpensesService<'a>,
+    pub category_segment_idx: Box<[usize]>,
+    pub expense_segment_idx: Box<[usize]>,
+}
+
+impl<'a> FileProcessor<'a> {
     pub fn process_file(&mut self, file_path: &str) -> Result<(), Box<dyn Error>> {
         let rdr = open_encoded_file(file_path)?;
         for line_result in rdr.lines() {
@@ -18,18 +25,18 @@ impl FileClassifier {
             let line_segments: &Vec<&str> = &line.split(';').collect();
 
             if let Some(cat) = self.find_category(line_segments) {
-                self.add_to_classified(cat, FileClassifier::extract_expense_value(line_segments))
+                self.expenses_service
+                    .add_to_classified(cat, self.extract_expense_value(line_segments))
             }
         }
         Ok(())
     }
 
-    fn find_category(&self, line_segments: &[&str]) -> Option<String> {
-        let transaction_segment_idx = [3, 4];
-        for i in transaction_segment_idx {
-            let opt_cat = line_segments
+    fn find_category(&self, segments: &[&str]) -> Option<String> {
+        for &i in self.category_segment_idx.iter() {
+            let opt_cat = segments
                 .get(i)
-                .and_then(|text| self.classifier.classify(text));
+                .and_then(|text| self.classifier.get_category(text));
             if opt_cat.is_some() {
                 return opt_cat;
             }
@@ -37,39 +44,12 @@ impl FileClassifier {
         None
     }
 
-    fn add_to_classified(&mut self, category: String, value: Option<&str>) {
-        let new_value: String = match value {
-            Some(v) => String::from(v),
-            None => return,
-        };
-
-        match self.classified_expenses.get_mut(category.as_str()) {
-            Some(values) => values.push(new_value),
-            None => {
-                self.classified_expenses
-                    .insert(category.clone(), Vec::from([new_value]));
-            }
-        }
-    }
-
-    fn extract_expense_value<'a>(segments: &[&'a str]) -> Option<&'a str> {
-        let expense_idx = [15, 16];
-        for i in expense_idx {
-            // let value = segments.get(i)?.parse::<f64>();
-            // if value.is_ok() {
-            //     return Option::from(segments[i]);
-            // }
+    fn extract_expense_value<'b>(&self, segments: &[&'b str]) -> Option<&'b str> {
+        for &i in self.expense_segment_idx.iter() {
             if !segments.get(i)?.is_empty() {
                 return Some(segments[i]);
             }
         }
         None
-    }
-
-    pub fn new() -> FileClassifier {
-        FileClassifier {
-            classifier: Classifier::new(),
-            classified_expenses: HashMap::new(),
-        }
     }
 }

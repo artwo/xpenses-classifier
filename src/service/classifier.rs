@@ -11,7 +11,7 @@ pub struct Classifier {
 }
 
 impl Classifier {
-    pub fn classify(&self, text: &str) -> Option<Category> {
+    pub fn get_category(&self, text: &str) -> Option<Category> {
         let mut result: Option<Category> = None;
         let text_patterns: Vec<&str> = text.split(&['*', ',']).collect();
 
