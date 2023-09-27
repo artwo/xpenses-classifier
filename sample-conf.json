@@ -1,16 +1,32 @@
 {
-  "fallbackCategories": [
-    "Paypal",
-    "Amazon"
-  ],
-  "categories": [
+  "fileProcessorConfig": [
     {
-      "name": "Supermarket",
-      "patterns": [
-        "Rewe",
-        "Edeka",
-        "Lidl"
+      "name": "deutsche-bank-credit",
+      "transactionFilePattern": "Transactions_*.csv",
+      "categorySegmentIdx": [
+        3,
+        4
+      ],
+      "expenseSegmentIdx": [
+        15,
+        16
       ]
     }
-  ]
+  ],
+  "classifierConfig": {
+    "fallbackCategories": [
+      "Paypal",
+      "Amazon"
+    ],
+    "categories": [
+      {
+        "name": "Supermarket",
+        "patterns": [
+          "Rewe",
+          "Edeka",
+          "Lidl"
+        ]
+      }
+    ]
+  }
 }

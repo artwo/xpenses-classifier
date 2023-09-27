@@ -5,11 +5,6 @@ use crate::util::file_util::open_encoded_file;
 use std::error::Error;
 use std::io::BufRead;
 
-pub struct FileProcessorConfig {
-    pub category_segment_idx: Box<[usize]>,
-    pub expense_segment_idx: Box<[usize]>,
-}
-
 pub struct FileProcessor<'a> {
     pub classifier: &'a Classifier,
     pub expenses_service: &'a mut ClassifiedExpensesService<'a>,
