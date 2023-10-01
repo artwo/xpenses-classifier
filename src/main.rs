@@ -19,28 +19,27 @@ fn main() {
     });
 
     let classifier = config.generate_classifier();
-    let mut expenses_service = ClassifiedExpensesService {
-        expenses_map: &mut HashMap::new(),
-    };
     let file_processor_config_list = config.get_file_processor_config();
 
-    let mut file_processor = FileProcessor {
-        classifier: &classifier,
-        expenses_service: &mut expenses_service,
-        category_segment_idx: file_processor_config_list
-            .get(0)
-            .unwrap()
-            .clone()
-            .category_segment_idx,
-        expense_segment_idx: file_processor_config_list
-            .get(0)
-            .unwrap()
-            .clone()
-            .expense_segment_idx,
+    let mut file_processors: Vec<FileProcessor> = Vec::new();
+    for c in file_processor_config_list {
+        file_processors.insert(
+            0,
+            FileProcessor {
+                classifier: &classifier,
+                category_segment_idx: c.expense_segment_idx.clone(),
+                expense_segment_idx: c.expense_segment_idx.clone(),
+            },
+        );
+    }
+
+    let mut expenses_service = ClassifiedExpensesService {
+        expenses_map: &mut HashMap::new(),
+        file_processors: &file_processors,
     };
 
     let transactions_file = "./Transactions_701_311319800_20230416_182556.csv";
-    file_processor
+    expenses_service
         .process_file(transactions_file)
         .unwrap_or_else(|err| {
             eprintln!("Unable to process file with name {transactions_file}, error: {err}");
