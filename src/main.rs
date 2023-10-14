@@ -18,15 +18,20 @@ fn main() {
         process::exit(1);
     });
 
+    let expenses_path = config.expenses_path.clone();
     let classifier = config.generate_classifier();
     let file_processor_config_list = config.get_file_processor_config();
 
     let mut file_processors: Vec<FileProcessor> = Vec::new();
     for c in file_processor_config_list {
+        let pattern = c.transaction_file_pattern.clone();
+        let transaction_file_pattern = format!("{expenses_path}/{pattern}");
         file_processors.insert(
             0,
             FileProcessor {
                 classifier: &classifier,
+                name: c.name.clone(),
+                transaction_file_pattern: transaction_file_pattern.clone(),
                 category_segment_idx: c.expense_segment_idx.clone(),
                 expense_segment_idx: c.expense_segment_idx.clone(),
             },
@@ -38,11 +43,14 @@ fn main() {
         file_processors: &file_processors,
     };
 
-    let transactions_file = "./Transactions_701_311319800_20230416_182556.csv";
-    expenses_service
-        .process_file(transactions_file)
-        .unwrap_or_else(|err| {
-            eprintln!("Unable to process file with name {transactions_file}, error: {err}");
-            process::exit(1);
-        });
+    expenses_service.process_files().unwrap_or_else(|err| {
+        eprintln!("Unable to process files, error: {err}");
+        process::exit(1);
+    });
+
+    println!("{:?}", classifier.pattern_category_map);
+    println!("Successfully processed expense files");
+    for el in expenses_service.expenses_map.iter() {
+        println!("{}: {:?}", el.0, el.1);
+    }
 }

@@ -1,4 +1,5 @@
 {
+  "expensesPath": "./expenses",
   "fileProcessorConfig": [
     {
       "name": "deutsche-bank-credit",

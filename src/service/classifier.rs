@@ -6,7 +6,7 @@ pub type Category = String;
 type Pattern = String;
 
 pub struct Classifier {
-    pattern_category_map: Trie<Pattern, Category>,
+    pub pattern_category_map: Trie<Pattern, Category>,
     fallback_categories: HashSet<Category>,
 }
 

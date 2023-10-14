@@ -20,12 +20,12 @@ pub struct ClassifiedExpensesService<'a> {
 }
 
 impl<'a> ClassifiedExpensesService<'a> {
-    pub fn process_file(&mut self, file_path: &str) -> Result<(), Box<dyn Error>> {
+    pub fn process_files(&mut self) -> Result<(), Box<dyn Error>> {
         if let Some(p) = self.file_processors.first() {
-            return p.process_file(file_path, |cat, val| self.add_to_classified(cat, val));
+            return p.process_files(|cat, val| self.add_to_classified(cat, val));
         }
         Err(Box::new(ClassifyingError(
-            "There is no file processor available".to_string(),
+            "There is no file processor available".to_owned(),
         )))
     }
 
