@@ -1,7 +1,6 @@
 use crate::service::classifier::Classifier;
-use radix_trie::Trie;
 use serde::Deserialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fs;
 
@@ -48,11 +47,11 @@ impl Config {
     }
 
     pub fn generate_classifier(&self) -> Classifier {
-        let mut category_trie: Trie<String, String> = Trie::new();
+        let mut category_trie: HashMap<String, String> = HashMap::new();
 
         for c in self.classifier_config.categories.iter() {
             for p in c.patterns.clone() {
-                category_trie.insert(p, c.name.clone());
+                category_trie.insert(p.to_lowercase(), c.name.clone());
             }
         }
 

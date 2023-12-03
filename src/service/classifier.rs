@@ -1,19 +1,21 @@
-use std::collections::HashSet;
-
-use radix_trie::Trie;
+use std::collections::{HashMap, HashSet};
 
 pub type Category = String;
-type Pattern = String;
+type CategoryPattern = String;
 
 pub struct Classifier {
-    pub pattern_category_map: Trie<Pattern, Category>,
+    pub pattern_category_map: HashMap<CategoryPattern, Category>,
     fallback_categories: HashSet<Category>,
+    entry_separators: Box<[char]>,
 }
 
 impl Classifier {
     pub fn get_category(&self, text: &str) -> Option<Category> {
         let mut result: Option<Category> = None;
-        let text_patterns: Vec<&str> = text.split(&['*', ',']).collect();
+        let lowercase_text = text.to_lowercase();
+        let text_patterns: Vec<&str> = lowercase_text
+            .split(self.entry_separators.iter().as_slice())
+            .collect();
 
         for p in text_patterns {
             if let Some(cat) = self.pattern_category_map.get(p).cloned() {
@@ -28,20 +30,14 @@ impl Classifier {
         result
     }
 
-    pub(crate) fn new() -> Classifier {
-        Classifier {
-            pattern_category_map: Trie::new(),
-            fallback_categories: HashSet::new(),
-        }
-    }
-
     pub fn from(
-        pattern_category_map: Trie<Pattern, Category>,
+        pattern_category_map: HashMap<CategoryPattern, Category>,
         fallback_categories: HashSet<Category>,
     ) -> Classifier {
         Classifier {
             pattern_category_map,
             fallback_categories,
+            entry_separators: Box::new(['*', ',', ' ']),
         }
     }
 }

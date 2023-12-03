@@ -26,16 +26,13 @@ fn main() {
     for c in file_processor_config_list {
         let pattern = c.transaction_file_pattern.clone();
         let transaction_file_pattern = format!("{expenses_path}/{pattern}");
-        file_processors.insert(
-            0,
-            FileProcessor {
-                classifier: &classifier,
-                name: c.name.clone(),
-                transaction_file_pattern: transaction_file_pattern.clone(),
-                category_segment_idx: c.expense_segment_idx.clone(),
-                expense_segment_idx: c.expense_segment_idx.clone(),
-            },
-        );
+        file_processors.push(FileProcessor {
+            classifier: &classifier,
+            name: c.name.clone(),
+            transaction_file_pattern: transaction_file_pattern.clone(),
+            category_segment_idx: c.category_segment_idx.clone(),
+            expense_segment_idx: c.expense_segment_idx.clone(),
+        });
     }
 
     let mut expenses_service = ClassifiedExpensesService {
