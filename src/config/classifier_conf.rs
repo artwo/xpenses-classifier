@@ -22,7 +22,7 @@ struct ClassifierConfigItem {
 #[serde(rename_all = "camelCase")]
 pub struct FileProcessorConfigItem {
     pub name: String,
-    pub transaction_file_pattern: String,
+    pub file_name_pattern: String,
     pub category_segment_idx: Box<[usize]>,
     pub expense_segment_idx: Box<[usize]>,
 }

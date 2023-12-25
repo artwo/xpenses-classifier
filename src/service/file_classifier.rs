@@ -20,7 +20,7 @@ impl Error for FileProcessingError {}
 pub struct FileProcessor<'a> {
     pub classifier: &'a Classifier,
     pub name: String,
-    pub transaction_file_pattern: String,
+    pub file_name_pattern: String,
     pub category_segment_idx: Box<[usize]>,
     pub expense_segment_idx: Box<[usize]>,
 }
@@ -32,16 +32,16 @@ impl<'a> FileProcessor<'a> {
     {
         println!(
             "Getting the files from the directory {:?}",
-            self.transaction_file_pattern
+            self.file_name_pattern
         );
 
-        for entry in glob(self.transaction_file_pattern.as_str())? {
+        for entry in glob(self.file_name_pattern.as_str())? {
             match entry?.as_os_str().to_str() {
                 Some(path) => self.process_file(path, |cat, val| f(cat.clone(), val))?,
                 None => {
                     return Err(Box::new(FileProcessingError(format!(
                         "Unable to read entry file in the pattern {}",
-                        self.transaction_file_pattern
+                        self.file_name_pattern
                     ))));
                 }
             }

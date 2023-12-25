@@ -24,12 +24,12 @@ fn main() {
 
     let mut file_processors: Vec<FileProcessor> = Vec::new();
     for c in file_processor_config_list {
-        let pattern = c.transaction_file_pattern.clone();
-        let transaction_file_pattern = format!("{expenses_path}/{pattern}");
+        let pattern = c.file_name_pattern.clone();
+        let file_name_pattern = format!("{expenses_path}/{pattern}");
         file_processors.push(FileProcessor {
             classifier: &classifier,
             name: c.name.clone(),
-            transaction_file_pattern: transaction_file_pattern.clone(),
+            file_name_pattern: file_name_pattern.clone(),
             category_segment_idx: c.category_segment_idx.clone(),
             expense_segment_idx: c.expense_segment_idx.clone(),
         });
