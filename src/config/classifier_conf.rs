@@ -33,6 +33,7 @@ pub struct Config {
     pub expenses_path: String,
     file_processor_config: Vec<FileProcessorConfigItem>,
     classifier_config: ClassifierConfig,
+    pub uncategorized_enabled: bool,
 }
 
 impl Config {

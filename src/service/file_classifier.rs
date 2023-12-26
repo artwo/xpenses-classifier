@@ -6,6 +6,8 @@ use std::error::Error;
 use std::fmt;
 use std::io::BufRead;
 
+const UNCATEGORIZED_KEY: &str = "Uncategorized";
+
 #[derive(Debug)]
 struct FileProcessingError(String);
 
@@ -23,6 +25,7 @@ pub struct FileProcessor<'a> {
     pub file_name_pattern: String,
     pub category_segment_idx: Box<[usize]>,
     pub expense_segment_idx: Box<[usize]>,
+    pub uncategorized_enabled: bool,
 }
 
 impl<'a> FileProcessor<'a> {
@@ -58,9 +61,15 @@ impl<'a> FileProcessor<'a> {
             let line = line_result?;
             let line_segments: &Vec<&str> = &line.split(';').collect();
 
-            if let Some(cat) = self.find_category(line_segments) {
-                f(cat, self.extract_expense_value(line_segments));
-            }
+            let expense_value = self.extract_expense_value(line_segments);
+            match self.find_category(line_segments) {
+                Some(cat) => f(cat, expense_value),
+                None => {
+                    if self.uncategorized_enabled {
+                        f(UNCATEGORIZED_KEY.to_owned(), expense_value);
+                    }
+                }
+            };
         }
         Ok(())
     }

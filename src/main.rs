@@ -32,6 +32,7 @@ fn main() {
             file_name_pattern: file_name_pattern.clone(),
             category_segment_idx: c.category_segment_idx.clone(),
             expense_segment_idx: c.expense_segment_idx.clone(),
+            uncategorized_enabled: config.uncategorized_enabled,
         });
     }
 
